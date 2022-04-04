@@ -69,3 +69,29 @@ def hashtag_process_list(lst):
                     internal_lst.append(x)
             external_lst.append(internal_lst)
     return external_lst
+
+
+def extract_domain_list(df):
+    value = []
+    for i in tqdm(df["urls"]):
+        url_exp = i.split(" ")
+        lst_inside = []
+        for exp in range(len(url_exp)):
+            if url_exp[exp] == "'expanded_url':":
+                lst_inside.append(url_exp[exp+1][1:-2])
+            value.append(lst_inside)
+    domain_list = []
+    cont = 0
+    for url in value:
+        cont = cont + 1
+        inside = []
+        for i in url:
+            try:
+                x = i.split("/")[2]
+            except:
+                x = "napolimagazine.com"
+            if "www." in x:
+                x = x[4:]
+            inside.append(x)
+        domain_list.append(inside)
+    return domain_list
