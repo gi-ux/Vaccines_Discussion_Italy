@@ -167,6 +167,7 @@ cython_debug/
 */Tweets
 */Files
 /.idea
+*/texts
 
 # Config
 */auth.json
