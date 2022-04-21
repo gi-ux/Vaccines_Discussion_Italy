@@ -10,7 +10,7 @@ from googleapiclient import discovery
 
 def parallel_execution(texts: list):
     futures = []
-    results = []
+    results = pd.DataFrame()
     executor = ProcessPoolExecutor(max_workers=3)
     sublist = np.array_split(texts, 3)
     count = 0
@@ -20,7 +20,8 @@ def parallel_execution(texts: list):
         count = count + 1
     futures_wait(futures)
     for fut in futures:
-        results.extend(fut.result())
+        results = results.append(fut.result())
+    results.reset_index(drop=True, inplace=True)
     return results
 
 def get_credentials():
@@ -35,7 +36,8 @@ def get_credentials():
 
 def score(API_KEY: str, text: list, count: int):
     print(f"Worker {count} started!")
-    scores = []
+    content = []
+    score = []
     for i in tqdm.tqdm(text):
         client = discovery.build(
             "commentanalyzer",
@@ -51,17 +53,19 @@ def score(API_KEY: str, text: list, count: int):
         }
         try:
             response = client.comments().analyze(body=analyze_request).execute()
-            scores.append((i, response["attributeScores"]["TOXICITY"]["summaryScore"]["value"]))
+            score.append(response["attributeScores"]["TOXICITY"]["summaryScore"]["value"])
+            content.append(i)
+
         except Exception as e:
             print("Error: ", e)
             print(f"On text:{i}")
         time.sleep(1)
     print(f"Shutting down worker {count}...")
-    return scores
+    df = pd.DataFrame(list(zip(content,score)), columns=["text","toxicity"])
+    return df
 
 if __name__ == '__main__':
-    contents = pd.read_csv("./texts/example.csv", lineterminator="\n", low_memory=False, encoding="utf-8")["text"]
-    scores = parallel_execution(contents)
-    for i in scores:
-        print("Content: ")
-        print(i)
+    contents = pd.read_csv("./texts/example_1.csv", lineterminator="\n", low_memory=False, encoding="utf-8")["text"]
+    res = parallel_execution(contents)
+    res.to_csv("./texts/results_1.csv", line_terminator="\n", encoding="utf-8", index=False)
+    print("Finished!")
