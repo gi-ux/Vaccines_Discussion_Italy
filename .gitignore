@@ -166,8 +166,9 @@ cython_debug/
 # Folders
 */Tweets
 */Files
+*/script_directory_output
 /.idea
-*/texts
+Italian/script_directory_output
 
 # Config
 */auth.json
