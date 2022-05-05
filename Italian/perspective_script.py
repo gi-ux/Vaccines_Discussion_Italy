@@ -65,7 +65,7 @@ def score(API_KEY: str, text: list, count: int):
     return df
 
 if __name__ == '__main__':
-    contents = pd.read_csv("./texts/example_1.csv", lineterminator="\n", low_memory=False, encoding="utf-8")["text"]
+    contents = pd.read_csv("./texts/example_8.csv", lineterminator="\n", low_memory=False, encoding="utf-8")["text"]
     res = parallel_execution(contents)
-    res.to_csv("./texts/results_1.csv", line_terminator="\n", encoding="utf-8", index=False)
+    res.to_csv("./texts/results_8.csv", line_terminator="\n", encoding="utf-8", index=False)
     print("Finished!")
