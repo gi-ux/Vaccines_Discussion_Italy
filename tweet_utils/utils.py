@@ -3,6 +3,8 @@ from tqdm.notebook import tqdm
 import matplotlib.pyplot as plt
 import numpy as np
 import warnings
+import time
+import datetime
 
 warnings.filterwarnings("ignore")
 
@@ -95,3 +97,17 @@ def extract_domain_list(df):
             inside.append(x)
         domain_list.append(inside)
     return domain_list
+
+def process_datetime(data):
+    if ((data == "nan") or (data == "False") or (data == "None")):
+        month = "01"
+        day = "01"
+        year = "2006"
+    else:
+        x = data.split()
+        month = str(time.strptime(x[1], '%b').tm_mon)
+        day = str(x[2])
+        year = str(x[5])
+    formatted_data = day + "-" + month + "-" + year
+    data = str(datetime.datetime.strptime(formatted_data, '%d-%m-%Y')).split()[0]
+    return data
