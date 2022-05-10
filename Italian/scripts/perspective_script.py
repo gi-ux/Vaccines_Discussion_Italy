@@ -25,7 +25,7 @@ def parallel_execution(texts: list):
     return results
 
 def get_credentials():
-    jsonFile = open('../Files/auth.json', 'r')
+    jsonFile = open(r'C:\Users\gianl\Desktop\Gi\Supsi\Vaccines_Discussion_Italy\Italian\Files\auth.json', 'r')
     config = json.load(jsonFile)
     jsonFile.close()
     keys = []
@@ -65,7 +65,10 @@ def score(API_KEY: str, text: list, count: int):
     return df
 
 if __name__ == '__main__':
-    contents = pd.read_csv("../script_directory_output/example_8.csv", lineterminator="\n", low_memory=False, encoding="utf-8")["text"]
+    contents = pd.read_csv(r"C:\Users\gianl\Desktop\Gi\Supsi\Vaccines_Discussion_Italy\Italian"
+                           r"\script_directory_output\example_10.csv", lineterminator="\n", low_memory=False,
+                           encoding="utf-8")["text"]
     res = parallel_execution(contents)
-    res.to_csv("./texts/results_8.csv", line_terminator="\n", encoding="utf-8", index=False)
+    res.to_csv(r"C:\Users\gianl\Desktop\Gi\Supsi\Vaccines_Discussion_Italy\Italian\script_directory_output\results_10"
+               r".csv", line_terminator="\n", encoding="utf-8", index=False)
     print("Finished!")

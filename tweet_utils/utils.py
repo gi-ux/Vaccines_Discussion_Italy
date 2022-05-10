@@ -72,6 +72,14 @@ def hashtag_process_list(lst):
             external_lst.append(internal_lst)
     return external_lst
 
+def hashtag_extraction(df):
+    lst = hashtag_process_list(df["hashtags"])
+    lst_2 = [i for i in lst if i != "[]"]
+    result = []
+    for i in lst_2:
+        for j in i:
+            result.append(j)
+    return result
 
 def extract_domain_list(df):
     value = []
