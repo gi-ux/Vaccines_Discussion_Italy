@@ -119,3 +119,21 @@ def process_datetime(data):
     formatted_data = day + "-" + month + "-" + year
     data = str(datetime.datetime.strptime(formatted_data, '%d-%m-%Y')).split()[0]
     return data
+
+def process_datetime_high_precision(data):
+    if (data == "nan") or (data == "False") or (data == "None"):
+        month = "01"
+        day = "01"
+        year = "2006"
+        hour = "00:00:00"
+    else:
+        x = data.split()
+        month = str(time.strptime(x[1], '%b').tm_mon)
+        day = str(x[2])
+        year = str(x[5])
+        hour = str(x[3])
+    formatted_data = year + "-" + month + "-" + day + " " + hour
+    data = str(datetime.datetime.strptime(formatted_data, '%Y-%m-%d %H:%M:%S'))
+    x = data.split(" ")
+    date = x[0]+"T"+x[1]
+    return date
