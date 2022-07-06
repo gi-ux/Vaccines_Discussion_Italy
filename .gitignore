@@ -166,6 +166,7 @@ cython_debug/
 # Folders
 */Tweets
 */Files
+*/files
 */script_directory_output
 /.idea
 Italian/script_directory_output
