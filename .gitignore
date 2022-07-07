@@ -172,4 +172,8 @@ cython_debug/
 Italian/script_directory_output
 
 # Config
+*client.json
 */auth.json
+
+#Exe
+*.exe

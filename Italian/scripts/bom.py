@@ -65,7 +65,7 @@ def read_file():
         temp = temp[temp["status"]=="ok"]
         df = df.append(temp)
         df.drop_duplicates(subset=["name"], inplace=True)
-    names = list(df["name"])[45000:48500]
+    names = list(df["name"])[48500:52000]
     return names
 
 def clear_results():
@@ -75,7 +75,7 @@ def clear_results():
         res = res.append(temp)
         os.remove(path)
     res.reset_index(drop=True, inplace=True)
-    res.to_csv(r"..\script_directory_output\bom\result_18.csv", line_terminator="\n", encoding="utf-8", index=False)
+    res.to_csv(r"..\script_directory_output\bom\result_19.csv", line_terminator="\n", encoding="utf-8", index=False)
 
 
 if __name__ == '__main__':
