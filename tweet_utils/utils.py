@@ -89,7 +89,7 @@ def extract_domain_list(df):
         for exp in range(len(url_exp)):
             if url_exp[exp] == "'expanded_url':":
                 lst_inside.append(url_exp[exp+1][1:-2])
-            value.append(lst_inside)
+        value.append(lst_inside)
     domain_list = []
     cont = 0
     for url in value:
