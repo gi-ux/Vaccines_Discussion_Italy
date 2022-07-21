@@ -1,11 +1,8 @@
 import numpy as np
 import pandas as pd
 import tweepy
-import requests
-import os
 from itertools import cycle
 import json
-import time
 import tqdm
 import glob
 import warnings
@@ -32,51 +29,44 @@ for i in config["DEFAULT"]["twitter_credentials"]:
     auth.set_access_token(i["access_token"], i["access_token_secret"])
     api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
     apis.append(api)
+print(f"{len(apis)} APIs generated")
 pool = cycle(apis)
 cont = 0
 
 
-def process_follow(users, screen_name):
+def process_followers(screen_name):
     api = next(pool)
-    ids = []
+    name = []
+    followers = []
     global cont
     if cont >= 14:
         api = next(pool)
     try:
-        for page in tqdm.tqdm(tweepy.Cursor(api.friends_ids, screen_name=screen_name).pages()):
+        for item in tqdm.tqdm(tweepy.Cursor(api.followers, screen_name=screen_name).items()):
             cont += 1
-            ids.extend(page)
-        target = [screen_name for _ in ids]
-        follow = pd.DataFrame(list(zip(target, ids)), columns=["user", "followed_id"])
-        follow = follow.merge(users, left_on="followed_id", right_on="id")[["user", "screen_name"]]
-        follow.rename(columns={'screen_name': 'followed_user'}, inplace=True)
-        return follow
+            name.append(screen_name)
+            followers.extend(item.screen_name)
     except tweepy.error.TweepError as e:
         print(f"Error: {e}")
-        lst_name = [np.nan]
-        lst_screen = [np.nan]
-        return pd.DataFrame(list(zip(lst_screen, lst_name)), columns=["user", "screen_name"])
+        name = [np.nan]
+        followers = [np.nan]
+        return pd.DataFrame(list(zip(name, followers)), columns=["user", "screen_name"])
 
 
 def load_users_df():
-    users = pd.DataFrame()
-    path_users = r"C:\Users\gianl\Desktop\Gi\Supsi\Vaccines_Discussion_Italy\Laura\Tweets\users"
-    for i in glob.glob(path_users + r"\users_*.csv"):
-        df = pd.read_csv(i, lineterminator="\n", encoding="utf-8", low_memory=False)
-        users = users.append(df)
-        users.reset_index(drop=True, inplace=True)
-        users.drop_duplicates(subset=['id'], keep="last", inplace=True)
-    return users[["id", "screen_name"]]
-
+    path = r"C:\Users\gianl\Desktop\Gi\Supsi\Vaccines_Discussion_Italy\Italian\files\Tweets\tweets.csv"
+    tweets = pd.read_csv(path, lineterminator="\n", low_memory=False, encoding="utf-8", usecols=["user_screen_name"])
+    df = tweets.groupby("user_screen_name")["user_screen_name"].count().reset_index(name="count")
+    df = df[df["count"] >= 10]
+    print(f"{len(df)} users to be processed")
+    return df
 
 if __name__ == '__main__':
-    # tweepy.debug(True)
     users = load_users_df()
-    users_to_score = pd.read_csv(r"C:\Users\gianl\Desktop\Gi\Supsi\Vaccines_Discussion_Italy\Laura\Files\to_follow.csv",
-                                 lineterminator="\n", low_memory=False, encoding="utf-8")
     df = pd.DataFrame()
-    for i in tqdm.tqdm(users_to_score["name"]):
-        df = df.append(process_follow(users, i))
-        print(f"{i} parsed.")
-    df.to_csv(fr"C:\Users\gianl\Desktop\Gi\Supsi\Vaccines_Discussion_Italy\Laura\Files\user_follow\followers.csv",
-              line_terminator="\n", index=False, encoding="utf-8")
+    for i in tqdm.tqdm(users["screen_name"]):
+        df = pd.concat([df, process_followers(i)], axis=0)
+        print(f"{i} parsed")
+    df = df[df["screen_name"].isin(list(users["screen_name"]))]
+    df.to_csv(r"C:\Users\gianl\Desktop\Gi\Supsi\Vaccines_Discussion_Italy\Italian\script_directory_output"
+              r"\followers_output\followers.csv", line_terminator="\n", index=False, encoding="utf-8")

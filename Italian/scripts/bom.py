@@ -8,10 +8,12 @@ import glob
 import os
 import botometer
 import warnings
+
 warnings.filterwarnings("ignore")
 
+
 def init_credentials():
-    jsonFile = open(r'C:\Users\gianl\Desktop\Gi\Supsi\twitterdatamanager\credentials.json', 'r')
+    jsonFile = open(r'C:\Users\gianluca.nogara\Desktop\Repo\twitterdatamanager\credentials.json', 'r')
     config = json.load(jsonFile)
     jsonFile.close()
     keys = []
@@ -32,8 +34,9 @@ def init_credentials():
         boms.append(botometer.Botometer(wait_on_ratelimit=True,
                                         rapidapi_key=keys[i],
                                         **twitter_app_auth))
-
+    print(len(boms))
     return boms
+
 
 def score(names, bom, count):
     result = []
@@ -44,13 +47,15 @@ def score(names, bom, count):
         except Exception as e:
             result.append(e)
     print(f"Result of thread number {count}")
-    pd.DataFrame(list(zip(names, result)),columns=["name","score"]).to_csv(fr"..\script_directory_output\bom\score_bom_{count}.csv",
-                                                                           line_terminator="\n", encoding="utf-8", index=False)
+    pd.DataFrame(list(zip(names, result)), columns=["name", "score"]).to_csv(
+        fr"..\script_directory_output\bom\score_bom_{count}.csv",
+        line_terminator="\n", encoding="utf-8", index=False)
+
 
 def process_users(urls: list):
     futures = []
-    executor = ProcessPoolExecutor(max_workers=8)
-    sublist = np.array_split(urls, 8)
+    executor = ProcessPoolExecutor(max_workers=15)
+    sublist = np.array_split(urls, 15)
     credentials = init_credentials()
     count = 0
     for sc in sublist:
@@ -58,15 +63,17 @@ def process_users(urls: list):
         count += 1
     futures_wait(futures)
 
+
 def read_file():
     df = pd.DataFrame()
     for path in glob.glob(r"..\script_directory_output\suspended_users\out*.csv"):
         temp = pd.read_csv(path, lineterminator="\n", encoding="utf-8", low_memory=False)
-        temp = temp[temp["status"]=="ok"]
+        temp = temp[temp["status"] == "ok"]
         df = df.append(temp)
         df.drop_duplicates(subset=["name"], inplace=True)
-    names = list(df["name"])[52000:56000]
+    names = list(df["name"])[72000:79000]
     return names
+
 
 def clear_results():
     res = pd.DataFrame()
@@ -75,7 +82,7 @@ def clear_results():
         res = res.append(temp)
         os.remove(path)
     res.reset_index(drop=True, inplace=True)
-    res.to_csv(r"..\script_directory_output\bom\result_20.csv", line_terminator="\n", encoding="utf-8", index=False)
+    res.to_csv(r"..\script_directory_output\bom\result_25.csv", line_terminator="\n", encoding="utf-8", index=False)
 
 
 if __name__ == '__main__':
