@@ -1,3 +1,4 @@
+import time
 from concurrent.futures import wait as futures_wait
 from concurrent.futures.process import ProcessPoolExecutor
 from tqdm import tqdm
@@ -65,28 +66,37 @@ def process_users(urls: list):
 
 
 def read_file():
-    df = pd.DataFrame()
-    for path in glob.glob(r"..\script_directory_output\suspended_users\out*.csv"):
+    res = pd.DataFrame()
+    df = pd.read_csv(r"C:\Users\gianluca.nogara\Desktop\Repo\Vaccines_Discussion_Italy\Italian\files\tweets\tweets.csv",
+                     lineterminator="\n", low_memory=False, encoding="utf-8", usecols= ["user_screen_name"])
+    for path in glob.glob(r"..\script_directory_output\bom\res*.csv"):
         temp = pd.read_csv(path, lineterminator="\n", encoding="utf-8", low_memory=False)
-        temp = temp[temp["status"] == "ok"]
-        df = df.append(temp)
-        df.drop_duplicates(subset=["name"], inplace=True)
-    names = list(df["name"])[72000:79000]
+        res = res.append(temp)
+    df = df[~df["user_screen_name"].isin(list(res["name"]))]
+    names = list(set(df["user_screen_name"]))[:6000]
     return names
 
 
-def clear_results():
+def clear_results(ress):
     res = pd.DataFrame()
     for path in tqdm(glob.glob(r"..\script_directory_output\bom\score_*.csv")):
         temp = pd.read_csv(path, lineterminator="\n", encoding="utf-8", low_memory=False)
         res = res.append(temp)
         os.remove(path)
     res.reset_index(drop=True, inplace=True)
-    res.to_csv(r"..\script_directory_output\bom\result_25.csv", line_terminator="\n", encoding="utf-8", index=False)
+    res.to_csv(rf"..\script_directory_output\bom\result_{ress}.csv", line_terminator="\n", encoding="utf-8", index=False)
 
 
 if __name__ == '__main__':
-    names = read_file()
-    process_users(names)
-    clear_results()
-    print("Completed parsing")
+    result_number = 32
+    count = 0
+    while count < 180000:
+        print("File number: ", result_number)
+        names = read_file()
+        process_users(names)
+        clear_results(result_number)
+        count += 6000
+        result_number += 1
+        print(f"Completed parsing for file {result_number}, users scored: {count}")
+        print("Reset credentials, sleep for 1 Day")
+        time.sleep(86400)

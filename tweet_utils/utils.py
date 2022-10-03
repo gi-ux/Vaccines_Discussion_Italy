@@ -48,10 +48,10 @@ def print_pie_chart4(title, label, data):
                                       wedgeprops=wp)
 
     # Adding legend
-    ax.legend(wedges, label,
-              title="Legend",
-              loc="center left",
-              bbox_to_anchor=(1, 0, 0.5, 1))
+    # ax.legend(wedges, label,
+    #           title="Legend",
+    #           loc="center left",
+    #           bbox_to_anchor=(1, 0, 0.5, 1))
 
     plt.setp(autotexts, size=8, weight="bold")
     ax.set_title(title)
